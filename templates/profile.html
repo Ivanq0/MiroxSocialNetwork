@@ -3,8 +3,10 @@
 {% block content %}
 
 <div>
-    <img src="{{img}}" class="img-thumbnail" width="500" height="500">
+    <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
     <h1>{{current_user.name}} {{current_user.surname}}</h1>
+    <a class="btn btn-primary" href="/logout">Выйти</a>
+    <a class="btn btn-primary" href="/upload_pfp">Изменить аватар</a>
 </div>
 
 {% endblock %}

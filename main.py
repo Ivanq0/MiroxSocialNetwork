@@ -1,9 +1,10 @@
 import base64
 import datetime
 import io
+import os
 
 from PIL import Image
-from flask import Flask, render_template, request, Response, send_file, url_for
+from flask import Flask, render_template, request, send_file, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename, redirect
 from forms.RegisterForm import RegisterForm
@@ -27,6 +28,7 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
+    clear_img()
     return render_template('base.html', title="MiroxSN")
 
 
@@ -58,6 +60,7 @@ def reqister():
 
 
 @app.route('/upload', methods=['POST'])
+@login_required
 def upload():
     pic = request.files['pic']
 
@@ -74,7 +77,7 @@ def upload():
     db_sess.add(img)
     db_sess.commit()
 
-    return "Pfp has been uploaded!", 200
+    return redirect(f'/user/{current_user.id}')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -101,6 +104,7 @@ def test():
 @login_required
 def logout():
     logout_user()
+    clear_img()
     return redirect("/")
 
 @app.route('/user/<int:id>')
@@ -108,15 +112,20 @@ def logout():
 def profile(id):
     db_sess = db_session.create_session()
     img = db_sess.query(ProfilePicture).filter(ProfilePicture.user_id == id).first()
-    image = Image.open(io.BytesIO(img.img))
-    image.save("static/img/temp_img.png")
-    return render_template("profile.html", img=url_for("static", filename="img/temp_img.png"))
+    if img:
+        image = Image.open(io.BytesIO(img.img))
+        image.save("static/img/temp_img.png")
+    return render_template("profile.html", img=url_for("static", filename="img/temp_img.png"), alt=url_for("static", filename="img/empty_img.jpg"))
 
 def serve_pil_image(pil_img):
     img_io = io.StringIO()
     pil_img.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
     return send_file(img_io, mimetype='image/jpeg')
+
+def clear_img():
+    if "temp_img.png" in os.listdir("static/img"):
+        os.remove("static/img/temp_img.png")
 
 if __name__ == "__main__":
     db_session.global_init("db/mirox_db.db")
