@@ -1,6 +1,9 @@
+import base64
 import datetime
+import io
 
-from flask import Flask, render_template, request
+from PIL import Image
+from flask import Flask, render_template, request, Response, send_file, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename, redirect
 from forms.RegisterForm import RegisterForm
@@ -100,6 +103,20 @@ def logout():
     logout_user()
     return redirect("/")
 
+@app.route('/user/<int:id>')
+@login_required
+def profile(id):
+    db_sess = db_session.create_session()
+    img = db_sess.query(ProfilePicture).filter(ProfilePicture.user_id == id).first()
+    image = Image.open(io.BytesIO(img.img))
+    image.save("static/img/temp_img.png")
+    return render_template("profile.html", img=url_for("static", filename="img/temp_img.png"))
+
+def serve_pil_image(pil_img):
+    img_io = io.StringIO()
+    pil_img.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
 
 if __name__ == "__main__":
     db_session.global_init("db/mirox_db.db")
