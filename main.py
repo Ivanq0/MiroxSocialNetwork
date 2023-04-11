@@ -131,7 +131,7 @@ def profile(id):
     img = db_sess.query(ProfilePicture).filter(ProfilePicture.user_id == id).first()
     db_sess = db_session.create_session()
     post = db_sess.query(Posts).order_by(Posts.id.desc()).filter(Posts.user_id == id).all()
-    user = db_sess.query(User).filter(User.id == id)
+    user = db_sess.query(User).filter(User.id == id).first()
     if img:
         image = Image.open(io.BytesIO(img.img))
         image.save("static/img/temp_img.png")
