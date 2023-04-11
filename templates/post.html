@@ -1,0 +1,21 @@
+{% include "base.html" %}
+
+{% block content %}
+
+<form action="" method="post" class="other-form">
+    <h1 style="text-align: center;">Добавить пост</h1>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.content.label }}<br>
+        {{ form.content(class="form-control", type="textarea") }}<br>
+        {% for error in form.content.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+</form>
+
+{% endblock %}

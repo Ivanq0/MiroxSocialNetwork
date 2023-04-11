@@ -1,0 +1,16 @@
+{% include "base.html" %}
+
+{% block content %}
+
+<div>
+    {% for post in posts %}
+        <a href="/user/{{post.user_id}}">
+            {{ post.user.name }} {{ post.user.surname }} {{ post.created_date }}
+        </a>
+        <h4>
+            {{ post.content }}
+        </h4>
+    {% endfor %}
+</div>
+
+{% endblock %}

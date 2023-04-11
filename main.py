@@ -9,8 +9,10 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.utils import secure_filename, redirect
 from forms.RegisterForm import RegisterForm
 from forms.LoginForm import LoginForm
+from forms.PostForm import PostForm
 from data import db_session
 from data.users import User
+from data.posts import Posts
 from data.profile_pictures import ProfilePicture
 
 app = Flask(__name__)
@@ -29,7 +31,9 @@ def load_user(user_id):
 @app.route('/')
 def index():
     clear_img()
-    return render_template('base.html', title="MiroxSN")
+    db_sess = db_session.create_session()
+    post = db_sess.query(Posts).order_by(Posts.id.desc()).all()
+    return render_template('feed.html', title="MiroxSN", posts=post)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -50,13 +54,27 @@ def reqister():
             surname=form.surname.data,
             email=form.email.data,
             date_of_birth=form.date_of_birth.data,
-            created_date=datetime.datetime.today()
+            created_date=datetime.datetime.now()
         )
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
+
+@app.route('/add_post', methods=['GET', 'POST'])
+@login_required
+def add_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        post = Posts(content=form.content.data,
+                     user_id=current_user.id)
+        db_sess.add(post)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('post.html', title='Добавить пост', form=form)
+
 
 
 @app.route('/upload', methods=['POST'])
@@ -108,14 +126,16 @@ def logout():
     return redirect("/")
 
 @app.route('/user/<int:id>')
-@login_required
 def profile(id):
     db_sess = db_session.create_session()
     img = db_sess.query(ProfilePicture).filter(ProfilePicture.user_id == id).first()
+    db_sess = db_session.create_session()
+    post = db_sess.query(Posts).order_by(Posts.id.desc()).filter(Posts.user_id == id).all()
+    user = db_sess.query(User).filter(User.id == id)
     if img:
         image = Image.open(io.BytesIO(img.img))
         image.save("static/img/temp_img.png")
-    return render_template("profile.html", img=url_for("static", filename="img/temp_img.png"), alt=url_for("static", filename="img/empty_img.jpg"))
+    return render_template("profile.html", user_id=id, user=user, posts=post, img=url_for("static", filename="img/temp_img.png"), alt=url_for("static", filename="img/empty_img.jpg"))
 
 def serve_pil_image(pil_img):
     img_io = io.StringIO()

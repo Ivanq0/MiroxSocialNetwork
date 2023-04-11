@@ -2,11 +2,27 @@
 
 {% block content %}
 
+{% if user_id == current_user.id %}
+    <div>
+        <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
+        <h1>{{current_user.name}} {{current_user.surname}}</h1>
+        <a class="btn btn-primary" href="/logout">Выйти</a>
+        <a class="btn btn-primary" href="/upload_pfp">Изменить аватар</a>
+    </div>
+{% else %}
+    <div>
+        <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
+        <h1>{{user.name}} {{user.surname}}</h1>
+    </div>
+{% endif %}
 <div>
-    <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
-    <h1>{{current_user.name}} {{current_user.surname}}</h1>
-    <a class="btn btn-primary" href="/logout">Выйти</a>
-    <a class="btn btn-primary" href="/upload_pfp">Изменить аватар</a>
-</div>
-
+        {% for post in posts %}
+        <h3>
+            {{ post.user.name }} {{ post.user.surname }} {{ post.created_date }}
+        </h3>
+        <h4>
+            {{ post.content }}
+        </h4>
+        {% endfor %}
+    </div>
 {% endblock %}
