@@ -4,7 +4,7 @@ import io
 import os
 
 from PIL import Image
-from flask import Flask, render_template, request, send_file, url_for
+from flask import Flask, render_template, request, send_file, url_for, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename, redirect
 from forms.RegisterForm import RegisterForm
@@ -62,7 +62,8 @@ def reqister():
         return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
 
-@app.route('/add_post', methods=['GET', 'POST'])
+
+@app.route('/post', methods=['GET', 'POST'])
 @login_required
 def add_post():
     form = PostForm()
@@ -76,6 +77,67 @@ def add_post():
     return render_template('post.html', title='Добавить пост', form=form)
 
 
+@app.route('/post/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(id):
+    form = PostForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        posts = db_sess.query(Posts).filter(Posts.id == id,
+                                            Posts.user_id == current_user.id
+                                            ).first()
+        if posts:
+            form.content.data = posts.content
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        posts = db_sess.query(Posts).filter(Posts.id == id,
+                                            Posts.user_id == current_user.id
+                                            ).first()
+        if posts:
+            posts.content = form.content.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('post_edit.html',
+                           title='Редактирование поста',
+                           form=form
+                           )
+
+
+@app.route('/post_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def post_delete(id):
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Posts).filter(Posts.id == id,
+                                        Posts.user_id == current_user.id
+                                        ).first()
+    if posts:
+        db_sess.delete(posts)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+@app.route('/account_delete/<int:id>', methods=['GET', 'POST'])
+def account_delete(id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == id, User.id == current_user.id).first()
+    posts = db_sess.query(Posts).filter(
+                                        Posts.user_id == current_user.id
+                                        ).all()
+    if posts:
+        for post in posts:
+            db_sess.delete(post)
+        db_sess.commit()
+    if user:
+        db_sess.delete(user)
+        db_sess.commit()
+    else:
+        abort(404)
+    return logout()
 
 @app.route('/upload', methods=['POST'])
 @login_required
@@ -93,6 +155,9 @@ def upload():
         img_to_del = db_sess.query(ProfilePicture).filter(ProfilePicture.user_id == current_user.id).first()
         db_sess.delete(img_to_del)
     db_sess.add(img)
+    post = Posts(content="Обновил фотографию на странице",
+                 user_id=current_user.id)
+    db_sess.add(post)
     db_sess.commit()
 
     return redirect(f'/user/{current_user.id}')
@@ -118,12 +183,14 @@ def login():
 def test():
     return render_template("upload_pfp.html")
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     clear_img()
     return redirect("/")
+
 
 @app.route('/user/<int:id>')
 def profile(id):
@@ -135,7 +202,10 @@ def profile(id):
     if img:
         image = Image.open(io.BytesIO(img.img))
         image.save("static/img/temp_img.png")
-    return render_template("profile.html", user_id=id, user=user, posts=post, img=url_for("static", filename="img/temp_img.png"), alt=url_for("static", filename="img/empty_img.jpg"))
+    return render_template("profile.html", user_id=id, user=user, posts=post,
+                           img=url_for("static", filename="img/temp_img.png"),
+                           alt=url_for("static", filename="img/empty_img.jpg"))
+
 
 def serve_pil_image(pil_img):
     img_io = io.StringIO()
@@ -143,9 +213,11 @@ def serve_pil_image(pil_img):
     img_io.seek(0)
     return send_file(img_io, mimetype='image/jpeg')
 
+
 def clear_img():
     if "temp_img.png" in os.listdir("static/img"):
         os.remove("static/img/temp_img.png")
+
 
 if __name__ == "__main__":
     db_session.global_init("db/mirox_db.db")

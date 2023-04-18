@@ -8,6 +8,7 @@
         <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
         <a class="btn btn-primary" href="/logout">Выйти</a>
         <a class="btn btn-primary" href="/upload_pfp">Изменить аватар</a>
+        <a class="btn btn-danger" href="/account_delete/{{ current_user.id }}">Удалить профиль</a>
     </div>
 {% else %}
     <div>
@@ -17,12 +18,25 @@
 {% endif %}
 <div>
         {% for post in posts %}
+        {% if user_id == current_user.id %}
+        <h3>
+            {{ post.user.name }} {{ post.user.surname }} {{ post.created_date }}
+        </h3>
+        <h4>
+            {{ post.content }}
+            <div>
+                <a class="btn btn-primary" href="/post/{{ post.id }}">Изменить</a>
+                <a class="btn btn-danger" href="/post_delete/{{ post.id }}">Удалить</a>
+            </div>
+        </h4>
+        {% else %}
         <h3>
             {{ post.user.name }} {{ post.user.surname }} {{ post.created_date }}
         </h3>
         <h4>
             {{ post.content }}
         </h4>
+        {% endif %}
         {% endfor %}
     </div>
 {% endblock %}
