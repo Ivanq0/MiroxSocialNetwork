@@ -4,9 +4,12 @@
 
 <div>
     {% for post in posts %}
-        <a href="/user/{{post.user_id}}">
-            {{ post.user.name }} {{ post.user.surname }} {{ post.created_date }}
-        </a>
+        <p>
+            <a class="link-offset-2 link-underline link-underline-opacity-0" href="/user/{{post.user_id}}">
+            {{ post.user.name }} {{ post.user.surname }}
+            </a>
+            {{ post.created_date }}
+        </p>
         <h4>
             {{ post.content }}
         </h4>

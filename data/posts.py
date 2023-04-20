@@ -1,11 +1,12 @@
 import datetime
 import sqlalchemy
 from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
 
-class Posts(SqlAlchemyBase):
+class Posts(SqlAlchemyBase, SerializerMixin):
 
     created_date_str = str(datetime.datetime.now())
     date_time_obj = datetime.datetime.strptime(created_date_str, '%Y-%m-%d %H:%M:%S.%f')
@@ -25,3 +26,6 @@ class Posts(SqlAlchemyBase):
     user_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 sqlalchemy.ForeignKey("users.id"))
     user = orm.relationship('User')
+
+    def __repr__(self):
+        return f"{self.content} {self.created_date} {self.user.name} {self.user.surname}"

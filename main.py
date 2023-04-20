@@ -1,4 +1,3 @@
-import base64
 import datetime
 import io
 import os
@@ -6,16 +5,19 @@ import os
 from PIL import Image
 from flask import Flask, render_template, request, send_file, url_for, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_restful import Api
 from werkzeug.utils import secure_filename, redirect
+
 from forms.RegisterForm import RegisterForm
 from forms.LoginForm import LoginForm
 from forms.PostForm import PostForm
-from data import db_session
+from data import db_session, posts_resources, users_resourses
 from data.users import User
 from data.posts import Posts
 from data.profile_pictures import ProfilePicture
 
 app = Flask(__name__)
+api = Api(app)
 app.config['SECRET_KEY'] = 'mirox_secretkey'
 
 login_manager = LoginManager()
@@ -221,4 +223,8 @@ def clear_img():
 
 if __name__ == "__main__":
     db_session.global_init("db/mirox_db.db")
+    api.add_resource(posts_resources.PostListResource, '/api/post')
+    api.add_resource(posts_resources.PostResource, '/api/post/<int:post_id>')
+    api.add_resource(users_resourses.UserListResource, '/api/user')
+    api.add_resource(users_resourses.UserResource, '/api/user/<int:user_id>')
     app.run()

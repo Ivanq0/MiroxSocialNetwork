@@ -2,21 +2,38 @@
 
 {% block content %}
 
-{% if user_id == current_user.id %}
-    <div>
-        <h1>{{current_user.name}} {{current_user.surname}}</h1>
-        <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
-        <a class="btn btn-primary" href="/logout">Выйти</a>
-        <a class="btn btn-primary" href="/upload_pfp">Изменить аватар</a>
-        <a class="btn btn-danger" href="/account_delete/{{ current_user.id }}">Удалить профиль</a>
+<div class="container" style="background-color: #D1F5FF;">
+    {% if user_id == current_user.id %}
+    <div class="flex-grow-1 ms-3 d-flex align-items-center">
+        <div class="flex-shrink-0" style="margin-top: 1rem; margin-bottom: 1rem;">
+            <img src="{{img}}" class="rounded float-start" width="100" height="100" alt="Not Found"
+                 onerror="this.src='{{alt}}';">
+        </div>
+        <div class="flex-grow-1 ms-3 d-flex align-items-center">
+            <p class="fs-1 fw-bold">
+                {{current_user.name}} {{current_user.surname}}
+            </p>
+        </div>
+        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+        <a class="btn btn-outline-primary" href="/logout">Выйти</a>
+        <a class="btn btn-outline-success" href="/upload_pfp">Изменить аватар</a>
+        <a class="btn btn-outline-danger" href="/account_delete/{{ current_user.id }}">Удалить профиль</a>
     </div>
-{% else %}
-    <div>
-        <h1>{{user.name}} {{user.surname}}</h1>
-        <img src="{{img}}" class="img-thumbnail" width="500" height="500" alt="Not Found" onerror="this.src='{{alt}}';">
     </div>
-{% endif %}
-<div>
+    {% else %}
+    <div class="flex-grow-1 ms-3 d-flex align-items-center">
+        <div class="flex-shrink-0" style="margin-top: 1rem; margin-bottom: 1rem;">
+            <img src="{{img}}" class="rounded float-start" width="100" height="100" alt="Not Found"
+                 onerror="this.src='{{alt}}';">
+        </div>
+        <div class="flex-grow-1 ms-3 d-flex align-items-center">
+            <p class="fs-1 fw-bold">
+                {{user.name}} {{user.surname}}
+            </p>
+        </div>
+    </div>
+    {% endif %}
+    <div>
         {% for post in posts %}
         {% if user_id == current_user.id %}
         <h3>
@@ -39,4 +56,5 @@
         {% endif %}
         {% endfor %}
     </div>
+</div>
 {% endblock %}

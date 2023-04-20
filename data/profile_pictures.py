@@ -1,9 +1,10 @@
 import sqlalchemy
 from sqlalchemy import orm
+from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
-class ProfilePicture(SqlAlchemyBase):
+class ProfilePicture(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'profile_pics'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, autoincrement=True, primary_key=True)
