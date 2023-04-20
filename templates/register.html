@@ -2,57 +2,59 @@
 
 {% block content %}
 
+<div class="container" style="background-color: #D1F5FF;">
+    <div class="mx-auto p-2" style="width: 400px;">
 <form action="" method="post" class="other-form">
     <h1 style="text-align: center;">Регистрация</h1>
     {{ form.hidden_tag() }}
-    <p>
-        {{ form.email.label }}<br>
-        {{ form.email(class="form-control", type="email") }}<br>
+    <p class="fs-3 fw-semibold">
+        {{ form.email.label }}
+        {{ form.email(class="form-control", type="email") }}
         {% for error in form.email.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>
-        {{ form.password.label }}<br>
-        {{ form.password(class="form-control", type="password") }}<br>
+    <p class="fs-3">
+        {{ form.password.label }}
+        {{ form.password(class="form-control", type="password") }}
         {% for error in form.password.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>
-        {{ form.password_again.label }}<br>
-        {{ form.password_again(class="form-control", type="password") }}<br>
+    <p class="fs-3 fw-semibold">
+        {{ form.password_again.label }}
+        {{ form.password_again(class="form-control", type="password") }}
         {% for error in form.password_again.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>
-        {{ form.name.label }}<br>
-        {{ form.name(class="form-control") }}<br>
+    <p class="fs-3 fw-semibold">
+        {{ form.name.label }}
+        {{ form.name(class="form-control") }}
         {% for error in form.name.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>
-        {{ form.surname.label }}<br>
-        {{ form.surname(class="form-control") }}<br>
+    <p class="fs-3 fw-semibold">
+        {{ form.surname.label }}
+        {{ form.surname(class="form-control") }}
         {% for error in form.surname.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
             </p>
         {% endfor %}
     </p>
-    <p>
-        {{ form.date_of_birth.label }}<br>
-        {{ form.date_of_birth(class="form-control") }}<br>
+    <p class="fs-3 fw-semibold">
+        {{ form.date_of_birth.label }}
+        {{ form.date_of_birth(class="form-control") }}
         {% for error in form.date_of_birth.errors %}
             <p class="alert alert-danger" role="alert">
                 {{ error }}
@@ -62,4 +64,6 @@
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
     {{message}}
 </form>
+    </div>
+</div>
 {% endblock %}

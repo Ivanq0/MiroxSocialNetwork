@@ -2,18 +2,26 @@
 
 {% block content %}
 
-<div>
-    {% for post in posts %}
-        <p>
-            <a class="link-offset-2 link-underline link-underline-opacity-0" href="/user/{{post.user_id}}">
-            {{ post.user.name }} {{ post.user.surname }}
-            </a>
-            {{ post.created_date }}
-        </p>
-        <h4>
-            {{ post.content }}
-        </h4>
-    {% endfor %}
+<div class="container" style="background-color: #D1F5FF; margin-top: 1rem;">
+    <div class="grid gap-3">
+        {% for post in posts %}
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded">
+            <div class="p-2 g-col-6">
+                <p class="fs-4 fw-semibold">
+                    <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                       href="/user/{{post.user_id}}">
+                        {{ post.user.name }} {{ post.user.surname }}
+                    </a>
+                    | {{ post.created_date }}
+                </p>
+                <p class="fs-2 fw-semibold">
+                    {{ post.content }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
+
 
 {% endblock %}

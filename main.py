@@ -167,6 +167,7 @@ def upload():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    clear_img()
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
@@ -196,6 +197,7 @@ def logout():
 
 @app.route('/user/<int:id>')
 def profile(id):
+    clear_img()
     db_sess = db_session.create_session()
     img = db_sess.query(ProfilePicture).filter(ProfilePicture.user_id == id).first()
     db_sess = db_session.create_session()
@@ -203,6 +205,9 @@ def profile(id):
     user = db_sess.query(User).filter(User.id == id).first()
     if img:
         image = Image.open(io.BytesIO(img.img))
+        image.save("static/img/temp_img.png")
+    else:
+        image = Image.open("static/img/empty_img.jpg")
         image.save("static/img/temp_img.png")
     return render_template("profile.html", user_id=id, user=user, posts=post,
                            img=url_for("static", filename="img/temp_img.png"),
