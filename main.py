@@ -3,18 +3,18 @@ import io
 import os
 
 from PIL import Image
-from flask import Flask, render_template, request, send_file, url_for, abort
+from flask import Flask, render_template, request, send_file, url_for, abort, make_response, jsonify
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_restful import Api
 from werkzeug.utils import secure_filename, redirect
 
-from forms.RegisterForm import RegisterForm
-from forms.LoginForm import LoginForm
-from forms.PostForm import PostForm
 from data import db_session, posts_resources, users_resourses
 from data.users import User
 from data.posts import Posts
 from data.profile_pictures import ProfilePicture
+from forms.RegisterForm import RegisterForm
+from forms.LoginForm import LoginForm
+from forms.PostForm import PostForm
 
 app = Flask(__name__)
 api = Api(app)
@@ -123,13 +123,14 @@ def post_delete(id):
         abort(404)
     return redirect('/')
 
+
 @app.route('/account_delete/<int:id>', methods=['GET', 'POST'])
 def account_delete(id):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.id == id, User.id == current_user.id).first()
     posts = db_sess.query(Posts).filter(
-                                        Posts.user_id == current_user.id
-                                        ).all()
+        Posts.user_id == current_user.id
+    ).all()
     if posts:
         for post in posts:
             db_sess.delete(post)
@@ -140,6 +141,7 @@ def account_delete(id):
     else:
         abort(404)
     return logout()
+
 
 @app.route('/upload', methods=['POST'])
 @login_required
@@ -214,6 +216,16 @@ def profile(id):
                            alt=url_for("static", filename="img/empty_img.jpg"))
 
 
+@app.errorhandler(400)
+def bad_request(_):
+    return make_response(jsonify({'error': 'Bad Request'}), 400)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
 def serve_pil_image(pil_img):
     img_io = io.StringIO()
     pil_img.save(img_io, 'JPEG', quality=70)
@@ -232,4 +244,5 @@ if __name__ == "__main__":
     api.add_resource(posts_resources.PostResource, '/api/post/<int:post_id>')
     api.add_resource(users_resourses.UserListResource, '/api/user')
     api.add_resource(users_resourses.UserResource, '/api/user/<int:user_id>')
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
